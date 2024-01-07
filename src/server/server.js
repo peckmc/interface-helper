@@ -20,7 +20,7 @@ router.use(express.static(path.join(__dirname, "../../dist")));
 const clientId = process.env.GOOGLE_CLIENT_ID;
 const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 const redirectUri = process.env.REDIRECT_URL;
-const scopes = ['openid profile email https://www.googleapis.com/auth/drive'];
+const scopes = ['openid profile email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/spreadsheets'];
 
 // Create an OAuth2 client
 const oAuth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri);
