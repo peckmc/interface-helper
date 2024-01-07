@@ -1,5 +1,4 @@
 const { google } = require('googleapis')
-const { Readable } =  require('stream')
 const axios = require('axios');
 const path = require('path');
 const fs = require('fs');
@@ -52,7 +51,28 @@ const fetchImages = async (urls, oAuth2Client) => {
         requestBody,
         media: media,
       })
+      let id = gfile.data.id;
       console.log('file id: ', gfile.data.id);
+      const params = {
+        fileId: id,
+        resource:
+        {
+          mimeType: 'application/vnd.google-apps.document',
+          parents: ['1xFbfWyJFTwb1x5IMweGm4Y5Vbu0Id1mA'],
+        },
+        fields: 'id',
+      };
+
+      // Convert after processes here
+      // Here we copy the IDs
+      await service.files.copy(params, (err, res) =>
+      {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log('converted file id: ', res.data.id);
+      });
     };
   });
 }
