@@ -4,7 +4,7 @@
   "description": "",
   "main": "interface-helper.js",
   "scripts": {
-    "client-dev": "npx webpack --watch",
+    "client-dev": "npx webpack serve",
     "server-dev": "npx nodemon src/server/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

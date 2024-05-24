@@ -95,26 +95,21 @@ router.get('/auth/callback', (req, res) => {
   res.sendFile(path.join(__dirname, '/../../dist/index.html'));
 });
 
-// router.get('/main.js', (req, res) => {
-//   res.sendFile(path.join(__dirname, '/../../dist/main.js'));
-// });
-
-// router.get('/index.html', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../../dist/index.html'));
-// });
-
+//generic endpoint
 router.post('/urlRange', async (req, res) => {
   try {
-    const { start, end, prefix, digitCount } = req.body;
-    let partNo, url;
+    const { start, end, prefix, suffix, digitCount } = req.body;
+    let url;
     let urls = [];
 
+    //generate the url list from user input
     for (var i = start; i <= end; i++) {
+      //create digit padding according to user-provided input
       partNo = i.toString().padStart(digitCount, '0');
-      url = `https://hipe.historicimages.com/images/${prefix}/${prefix}${partNo}b.jpg`;
+      url = `${prefix}${partNo}${suffix}.jpg`;
       urls.push({
         url: url,
-        name: `${prefix}${partNo}b`,
+        name: `${prefix}${partNo}${suffix}.jpg`,
       });
     }
     fetchImages(urls, oAuth2Client);
@@ -123,5 +118,36 @@ router.post('/urlRange', async (req, res) => {
     console.error('Error:', err)
   }
 });
+
+// router.get('/main.js', (req, res) => {
+//   res.sendFile(path.join(__dirname, '/../../dist/main.js'));
+// });
+
+// router.get('/index.html', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../../dist/index.html'));
+// });
+
+// historic images endpoint
+// router.post('/urlRange', async (req, res) => {
+//   try {
+//     const { start, end, prefix, suffix, digitCount } = req.body;
+//     let partNo, url;
+//     let urls = [];
+
+//     //generating the url list from user input
+//     for (var i = start; i <= end; i++) {
+//       partNo = i.toString().padStart(digitCount, '0');
+//       url = `https://hipe.historicimages.com/images/${prefix}/${prefix}${partNo}b.jpg`;
+//       urls.push({
+//         url: url,
+//         name: `${prefix}${partNo}b`,
+//       });
+//     }
+//     fetchImages(urls, oAuth2Client);
+//     res.sendStatus(200);
+//   } catch (err) {
+//     console.error('Error:', err)
+//   }
+// });
 
 router.listen(PORT, () => console.log(`🚀 Server listening on port ${PORT}`));

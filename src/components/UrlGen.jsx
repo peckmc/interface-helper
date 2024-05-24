@@ -12,6 +12,7 @@ function UrlGen() {
       prefix: target.prefix.value,
       start: target.start.value,
       end: target.end.value,
+      suffix: target.suffix.value,
       digitCount: target.digitCount.value,
     })
     .then((response) => {
@@ -29,6 +30,8 @@ function UrlGen() {
       Start: <input name="start" />
       <hr />
       End: <input name="end" />
+      <hr />
+      Suffix: <input name="suffix" />
       <hr />
       Digit Count: <input name="digitCount" />
       <hr />
