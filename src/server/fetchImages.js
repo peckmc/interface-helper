@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const fetchImages = async (urls, oAuth2Client) => {
+  console.log('-------BEGIN FETCHING IMAGES-------')
   const drive = google.drive({
     version: "v3",
     auth: oAuth2Client,
@@ -34,7 +35,7 @@ const fetchImages = async (urls, oAuth2Client) => {
       });
     })
     .catch((err) => {
-      throw err;
+      console.log(`error fetching ${url}`)
     })
   }
   //after the files are saved, they are uploaded to google drive
@@ -69,18 +70,17 @@ const fetchImages = async (urls, oAuth2Client) => {
         fields: 'id',
       };
       //and then the jpg is converted to a google doc
-      await drive.files.copy(params, (err, res) => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        console.log('converted file id: ', res.data.id);
-      });
-
-      //the local file is deleted
-      await fs.unlink(path.join(dir, filename), () => {
-        console.log(`${filename} has been deleted.`);
-      });
+      await drive.files.copy(params)
+      .then((res) => {
+        console.log('converted file id: ', res.id);
+        //the local file is deleted
+        fs.unlink(path.join(dir, filename), () => {
+          console.log(`${filename} has been deleted.`);
+        });
+      })
+      .catch((err) =>{
+        console.log(`drive error copying file ${filename}`)
+      })
     };
 
     //TODO: create or append google sheet with ocr results from previously created docs
