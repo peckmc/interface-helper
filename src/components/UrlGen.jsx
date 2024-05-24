@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 const serverUrl = process.env.REACT_APP_SERVER_URL;
 
 function UrlGen() {
+  const [urlList, setUrlList] = useState('');
+
   async function getUrls(event) {
     event.preventDefault();
     const target = event.target;
@@ -17,6 +19,7 @@ function UrlGen() {
     })
     .then((response) => {
       console.log(response.data);
+      setUrlList(response.data);
     })
     .catch((error) => {
       // console.log(error);
@@ -36,6 +39,9 @@ function UrlGen() {
       Digit Count: <input name="digitCount" />
       <hr />
       <button type="submit">Search</button>
+      <hr />
+      URLs:
+      <textarea value={urlList} name="urllist" rows={15} cols={250} />
     </form>
   );
 }

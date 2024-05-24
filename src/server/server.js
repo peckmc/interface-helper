@@ -96,28 +96,28 @@ router.get('/auth/callback', (req, res) => {
 });
 
 //generic endpoint
-router.post('/urlRange', async (req, res) => {
-  try {
-    const { start, end, prefix, suffix, digitCount } = req.body;
-    let url;
-    let urls = [];
+// router.post('/urlRange', async (req, res) => {
+//   try {
+//     const { start, end, prefix, suffix, digitCount } = req.body;
+//     let url;
+//     let urls = [];
 
-    //generate the url list from user input
-    for (var i = start; i <= end; i++) {
-      //create digit padding according to user-provided input
-      partNo = i.toString().padStart(digitCount, '0');
-      url = `${prefix}${partNo}${suffix}.jpg`;
-      urls.push({
-        url: url,
-        name: `${prefix}${partNo}${suffix}.jpg`,
-      });
-    }
-    fetchImages(urls, oAuth2Client);
-    res.sendStatus(200);
-  } catch (err) {
-    console.error('Error:', err)
-  }
-});
+//     //generate the url list from user input
+//     for (var i = start; i <= end; i++) {
+//       //create digit padding according to user-provided input
+//       partNo = i.toString().padStart(digitCount, '0');
+//       url = `${prefix}${partNo}${suffix}.jpg`;
+//       urls.push({
+//         url: url,
+//         name: `${prefix}${partNo}${suffix}.jpg`,
+//       });
+//     }
+//     fetchImages(urls, oAuth2Client);
+//     res.status(200).json(urls);
+//   } catch (err) {
+//     console.error('Error:', err)
+//   }
+// });
 
 // router.get('/main.js', (req, res) => {
 //   res.sendFile(path.join(__dirname, '/../../dist/main.js'));
@@ -128,26 +128,32 @@ router.post('/urlRange', async (req, res) => {
 // });
 
 // historic images endpoint
-// router.post('/urlRange', async (req, res) => {
-//   try {
-//     const { start, end, prefix, suffix, digitCount } = req.body;
-//     let partNo, url;
-//     let urls = [];
+router.post('/urlRange', async (req, res) => {
+  try {
+    const { start, end, prefix, suffix, digitCount } = req.body;
+    let partNo, url;
+    let urls = [];
 
-//     //generating the url list from user input
-//     for (var i = start; i <= end; i++) {
-//       partNo = i.toString().padStart(digitCount, '0');
-//       url = `https://hipe.historicimages.com/images/${prefix}/${prefix}${partNo}b.jpg`;
-//       urls.push({
-//         url: url,
-//         name: `${prefix}${partNo}b`,
-//       });
-//     }
-//     fetchImages(urls, oAuth2Client);
-//     res.sendStatus(200);
-//   } catch (err) {
-//     console.error('Error:', err)
-//   }
-// });
+    //generating the url list from user input
+    for (var i = start; i <= end; i++) {
+      partNo = i.toString().padStart(digitCount, '0');
+      url = `https://hipe.historicimages.com/images/${prefix}/${prefix}${partNo}b.jpg`;
+      urls.push({
+        url: url,
+        name: `${prefix}${partNo}b`,
+      });
+    }
+    // fetchImages(urls, oAuth2Client);
+
+    //generate a string of urls to return to client
+    let urlList = urls.map((url) => {
+      return `${url.url}`
+    }).join('\n')
+
+    res.status(200).json(urlList);
+  } catch (err) {
+    console.error('Error:', err)
+  }
+});
 
 router.listen(PORT, () => console.log(`🚀 Server listening on port ${PORT}`));

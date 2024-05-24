@@ -32,4 +32,5 @@ module.exports = {
     }),
     new dotenv(),
   ],
+  watch: true
 }
