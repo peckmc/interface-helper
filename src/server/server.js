@@ -127,14 +127,15 @@ router.get('/auth/callback', (req, res) => {
 //   res.sendFile(path.join(__dirname, '../../dist/index.html'));
 // });
 
-// historic images endpoint
-router.post('/urlRange', async (req, res) => {
+// historic images endpoints
+//get a url list from user input
+router.get('/urls', async (req, res) => {
   try {
-    const { start, end, prefix, suffix, digitCount } = req.body;
+
+    const { start, end, prefix, suffix, digitCount } = req.query;
     let partNo, url;
     let urls = [];
 
-    //generating the url list from user input
     for (var i = start; i <= end; i++) {
       partNo = i.toString().padStart(digitCount, '0');
       url = `https://hipe.historicimages.com/images/${prefix}/${prefix}${partNo}b.jpg`;
@@ -143,8 +144,6 @@ router.post('/urlRange', async (req, res) => {
         name: `${prefix}${partNo}b`,
       });
     }
-    // fetchImages(urls, oAuth2Client);
-
     //generate a string of urls to return to client
     let urlList = urls.map((url) => {
       return `${url.url}`
@@ -155,5 +154,15 @@ router.post('/urlRange', async (req, res) => {
     console.error('Error:', err)
   }
 });
+
+//submit a list of urls for ocr
+router.post('/urls', async (req, res) => {
+  try {
+    fetchImages(req.body, oAuth2Client);
+    res.sendStatus(200);
+  } catch (err) {
+    console.log(err)
+  }
+})
 
 router.listen(PORT, () => console.log(`🚀 Server listening on port ${PORT}`));

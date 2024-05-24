@@ -11,7 +11,7 @@ const fetchImages = async (urls, oAuth2Client) => {
 
   const sheets = google.sheets({
     version: 'v4',
-    auth:oAuth2Client,
+    auth: oAuth2Client,
   });
 
   const axios = AxiosCustomInstance();
@@ -19,16 +19,15 @@ const fetchImages = async (urls, oAuth2Client) => {
 
   //takes a list of urls and saves them locally
   for (const url of urls) {
-    let filename = `/${url.name}.jpg`;
+    let filename = `/${url.slice(-13)}`;
 
     await axios.request({
       method: 'get',
-      url: url.url,
-      host: 'https://hipe.historicimages.com',
+      url: url,
       responseType: 'stream',
     })
     .then(function (response) {
-      console.log('urlname:', url.name)
+      console.log('urlname:', url)
       let stream = response.data.pipe(fs.createWriteStream(dir + filename));
       stream.on('finish', async () => {
         return;

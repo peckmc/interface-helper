@@ -2,10 +2,10 @@
   "name": "interface-helper",
   "version": "1.0.0",
   "description": "",
-  "main": "interface-helper.js",
+  "main": "src/server/server.js",
   "scripts": {
     "client-dev": "npx webpack",
-    "server-dev": "npx nodemon src/server/server.js",
+    "server-dev": "nodemon --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

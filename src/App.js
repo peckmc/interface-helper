@@ -62,6 +62,7 @@ const Dashboard = () => {
       <img src={user?.picture} alt={user?.name} />
       <br />
       <div>
+        <h3>Generate or manually enter list of image urls (jpg/png):</h3>
         <UrlGen />
       </div>
     </>
