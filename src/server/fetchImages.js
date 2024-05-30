@@ -17,6 +17,45 @@ const fetchImages = async (urls, oAuth2Client) => {
 
   const axios = AxiosCustomInstance();
   const dir = path.join(__dirname, '../../files');
+  let sheetId = '';
+  let docData = [];
+
+  //TODO: create or append google sheet with ocr results from previously created docs
+  //get id of spreadsheet to append or create
+  var fileName = 'Historic Images OCR Results'
+  var mimeType = 'application/vnd.google-apps.spreadsheet'
+
+  await drive.files.list({
+    q: `mimeType='${mimeType}' and name='${fileName}'`,
+    fields: 'files(id, name)'
+  })
+  .then((res) => {
+    const files = res.data.files
+    if (files.length) {
+      // There is an existing spreadsheet(s) with the same filename
+      // The spreadsheet Id will be in files[x].id
+      console.log(`found spreadsheet with id: ${files[0].id}`)
+      sheetId = files[0].id;
+    } else {
+      // Create spreadsheet with filename ${fileName}
+      sheets.spreadsheets.create({
+        resource: {
+          properties: { title: fileName }},
+        fields: 'spreadsheetId'
+      })
+      .then((res) => {
+        // The spreadsheet Id will be in ${spreadsheet.data.spreadsheetId}
+        console.log(`created spreadsheet with id: ${spreadsheet.data.spreadsheetId}`)
+        sheetId = spreadsheet.data.spreadsheetId;
+      })
+      .catch((err) => {
+        console.log('error creating google spreadsheet.')
+      })
+    }
+  })
+  .catch((err) => {
+    console.log('error finding google spreadsheet.')
+  })
 
   //takes a list of urls and saves them locally
   for (const url of urls) {
@@ -35,13 +74,13 @@ const fetchImages = async (urls, oAuth2Client) => {
       });
     })
     .catch((err) => {
-      console.log(`error fetching ${url}`)
+      console.log(`error fetching ${url}: ${err}`)
     })
   }
   //after the files are saved, they are uploaded to google drive
-  await fs.readdir(dir, async function (err, files) {
+  fs.readdir(dir, async (err, files) => {
     if (err) {
-      return console.log('Unable to scan directory: ' + err);
+      console.log('error uploading files to google drive:', err);
     }
     for (const filename of files) {
       let requestBody = {
@@ -72,46 +111,41 @@ const fetchImages = async (urls, oAuth2Client) => {
       //and then the jpg is converted to a google doc
       await drive.files.copy(params)
       .then((res) => {
-        console.log('converted file id: ', res.id);
+        console.log('converted file id: ', res.data.id);
+
         //the local file is deleted
-        fs.unlink(path.join(dir, filename), () => {
+        fs.unlink(path.join(dir, filename), (err) => {
+          if (err) {
+            console.log(`error deleting file ${filename}`)
+          }
           console.log(`${filename} has been deleted.`);
         });
+        return res.data.id;
+      })
+      .then((id) => {
+        console.log('id:', id)
+        return drive.files.export({ fileId: id, mimeType: 'text/plain'})
+      })
+      .then((res) => {
+        let values = [
+          [
+            filename.slice(0, -4), res.data
+          ]
+        ];
+        let resource = {
+          values,
+        };
+        return sheets.spreadsheets.values.append({
+          spreadsheetId: sheetId,
+          range: 'Sheet1',
+          valueInputOption: 'RAW',
+          resource: resource,
+        })
       })
       .catch((err) =>{
-        console.log(`drive error copying file ${filename}`)
+        console.log(`drive error copying file ${filename}: ${err}`)
       })
     };
-
-    //TODO: create or append google sheet with ocr results from previously created docs
-    var fileName = 'Historic Images OCR Results'
-    var mimeType = 'application/vnd.google-apps.spreadsheet'
-
-    await drive.files.list({
-      q: `mimeType='${mimeType}' and name='${fileName}'`,
-      fields: 'files(id, name)'
-    }, (err, res) => {
-        if (err) return console.log('drive files error: ' + err)
-        const files = res.data.files
-        if (files.length) {
-          // There is an existing spreadsheet(s) with the same filename
-          // The spreadsheet Id will be in files[x].id
-          console.log(`found spreadsheet with id: ${files[0].id}`)
-          let id = files[0].id;
-        } else {
-          // Create spreadsheet with filename ${fileName}
-          sheets.spreadsheets.create({
-            resource: {
-              properties: { title: fileName }},
-            fields: 'spreadsheetId'
-          }, (err, spreadsheet) => {
-            if (err) return console.log('spreadsheets create error: ' + err)
-            // The spreadsheet Id will be in ${spreadsheet.data.spreadsheetId}
-            console.log(`created spreadsheet with id: ${spreadsheet.data.spreadsheetId}`)
-            id = spreadsheet.data.spreadsheetId;
-          })
-        }
-    });
   });
 };
 
